@@ -35,8 +35,8 @@ def write_csv_header(filename):
     """
     with open(filename, 'w', newline='') as outcsv:
         writer = csv.writer(outcsv)
-        writer.writerow(["Rank", "Athlete", "Distance", "Runs",
-                         "Longest", "Avg. Pace", "Elevation Gain", "Division"])
+        writer.writerow(["Rank", "Athlete", "Time", "Activities",
+                         "Distance", "Elevation Gain", "Division"])
 
 
 def this_weeks_leaderborad(driver):
