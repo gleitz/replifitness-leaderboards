@@ -1,15 +1,19 @@
-import datetime, csv
+import csv
+import datetime
+
 from selenium import webdriver
+
 
 def new_driver(url):
     """
-    This function calls the PhantomJS driver for webscraping
+    This function calls the webdriver for webscraping
     :param url: the strava URL where the club exists
-    :return: the created phantomjs driver
+    :return: the created webdriver
     """
-    driver = webdriver.PhantomJS('/Library/Phantom/phantomjs')
+    driver = webdriver.Chrome('./bin/chromedriver')
     driver.get(url)
     return driver
+
 
 def get_dates():
     """
@@ -22,6 +26,7 @@ def get_dates():
     coming_monday = today + datetime.timedelta(days=-today.weekday())
     return last_monday, coming_monday
 
+
 def write_csv_header(filename):
     """
     Create a CSV file and add a static header to it
@@ -33,6 +38,7 @@ def write_csv_header(filename):
         writer.writerow(["Rank", "Athlete", "Distance", "Runs",
                          "Longest", "Avg. Pace", "Elevation Gain", "Division"])
 
+
 def this_weeks_leaderborad(driver):
     """
     Get this weeks top leader board runners
@@ -42,6 +48,7 @@ def this_weeks_leaderborad(driver):
     text_out = driver.find_element_by_xpath('//*[@class="dense striped sortable"]')
     return text_out
 
+
 def last_weeks_leaderborad(driver):
     """
     Get last weeks top leader board runners
@@ -49,9 +56,10 @@ def last_weeks_leaderborad(driver):
     :return: text extracted from the leader board table element
     """
     # .click() selects the button on the webpage to change the leader board viewed
-    elem = driver.find_element_by_xpath('//*[@class="button last-week"]').click()
+    driver.find_element_by_xpath('//*[@class="button last-week"]').click()
     text_out = driver.find_element_by_xpath('//*[@class="dense striped sortable"]')
     return text_out
+
 
 def write_last_weeks_leaderboard(filename, division, driver):
     """
@@ -63,12 +71,13 @@ def write_last_weeks_leaderboard(filename, division, driver):
     """
     text_out = last_weeks_leaderborad(driver)
     with open(filename, 'a', newline='') as csvfile:
-        wr = csv.writer(csvfile)
+        writer = csv.writer(csvfile)
         for row in text_out.find_elements_by_css_selector('tr'):
             row_content = [d.text for d in row.find_elements_by_css_selector('td')]
             row_content.append(division)
-            if len(row_content) > 1: #don't pull through empty header row
-                wr.writerow(row_content)
+            if len(row_content) > 1:  # don't pull through empty header row
+                writer.writerow(row_content)
+
 
 def write_this_weeks_leaderboard(filename, division, driver):
     """
@@ -80,12 +89,13 @@ def write_this_weeks_leaderboard(filename, division, driver):
     """
     text_out = this_weeks_leaderborad(driver)
     with open(filename, 'a', newline='') as csvfile:
-        wr = csv.writer(csvfile)
+        writer = csv.writer(csvfile)
         for row in text_out.find_elements_by_css_selector('tr'):
             row_content = [d.text for d in row.find_elements_by_css_selector('td')]
             row_content.append(division)
             if len(row_content) > 1:  # don't pull through empty header row
-                wr.writerow(row_content)
+                writer.writerow(row_content)
+
 
 def write_csv_by_div(filename_last, filename_this, division, url):
     """
@@ -98,9 +108,6 @@ def write_csv_by_div(filename_last, filename_this, division, url):
     :return: null, this function only calls other functions
     """
     driver = new_driver(url)
-    
+
     write_this_weeks_leaderboard(filename_this, division, driver)
     write_last_weeks_leaderboard(filename_last, division, driver)
-
-
-### END ###

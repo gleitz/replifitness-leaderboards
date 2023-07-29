@@ -1,31 +1,23 @@
-from functions import *
+from functions import get_dates, write_csv_header, write_csv_by_div
 
-#declare filenames with this weeks and last weeks date
-last_monday, this_monday = get_dates()
-filename_this = "Leaderboard_" + str(this_monday) + ".csv"
-filename_last = "Leaderboard_" + str(last_monday) + ".csv"
-write_csv_header(filename_this)
-write_csv_header(filename_last)
-
-#append all divisions data
-write_csv_by_div(filename_last,
-                 filename_this,
-                 "London Market", URL)
-
-write_csv_by_div(filename_last,
-                 filename_this,
-                 "Reinsurance", URL)
-
-write_csv_by_div(filename_last,
-                 filename_this,
-                 "UK", URL)
+CLUBS = [
+    ["Replicant Fitness", "https://www.strava.com/clubs/1159003"]
+]
 
 
+def main():
+    last_monday, this_monday = get_dates()
+    filename_this = f"Leaderboard_{this_monday}.csv"
+    filename_last = f"Leaderboard_{last_monday}.csv"
+    write_csv_header(filename_this)
+    write_csv_header(filename_last)
 
-### END ###
+    for club_name, club_url in CLUBS:
+        write_csv_by_div(filename_last,
+                         filename_this,
+                         club_name,
+                         club_url)
 
 
-
-
-
-
+if __name__ == "__main__":
+    main()
