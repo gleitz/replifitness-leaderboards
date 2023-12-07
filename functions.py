@@ -1,7 +1,10 @@
 import csv
 import datetime
+import time
 
 from selenium import webdriver
+
+DRIVER = None
 
 
 def new_driver(url):
@@ -10,9 +13,12 @@ def new_driver(url):
     :param url: the strava URL where the club exists
     :return: the created webdriver
     """
-    driver = webdriver.Chrome('./bin/chromedriver')
-    driver.get(url)
-    return driver
+    global DRIVER
+    if not DRIVER:
+        driver = webdriver.Chrome('./bin/chromedriver')
+        DRIVER = driver
+    DRIVER.get(url)
+    return DRIVER
 
 
 def get_dates():
@@ -75,7 +81,7 @@ def write_last_weeks_leaderboard(filename, division, driver):
         for row in text_out.find_elements_by_css_selector('tr'):
             row_content = [d.text for d in row.find_elements_by_css_selector('td')]
             row_content.append(division)
-            if len(row_content) > 1:  # don't pull through empty header row
+            if len(row_content) > 1 and row_content[0] != "There are no results.":
                 writer.writerow(row_content)
 
 
@@ -93,7 +99,7 @@ def write_this_weeks_leaderboard(filename, division, driver):
         for row in text_out.find_elements_by_css_selector('tr'):
             row_content = [d.text for d in row.find_elements_by_css_selector('td')]
             row_content.append(division)
-            if len(row_content) > 1:  # don't pull through empty header row
+            if len(row_content) > 1 and row_content[0] != "There are no results.":
                 writer.writerow(row_content)
 
 
@@ -109,5 +115,9 @@ def write_csv_by_div(filename_last, filename_this, division, url):
     """
     driver = new_driver(url)
 
+    time.sleep(1)
+
     write_this_weeks_leaderboard(filename_this, division, driver)
     write_last_weeks_leaderboard(filename_last, division, driver)
+
+    return driver
